@@ -1,0 +1,11 @@
+langchain
+langchain-community
+pypdf
+python-docx
+faiss-cpu
+sentence-transformers
+transformers
+huggingface_hub
+aisuite[all]
+gradio
+python-dotenv

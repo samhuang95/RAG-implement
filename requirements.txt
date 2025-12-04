@@ -9,3 +9,11 @@ huggingface_hub
 aisuite[all]
 gradio
 python-dotenv
+notion-client
+notion2md
+markdown
+xhtml2pdf
+notion-client
+notion2md
+markdown
+xhtml2pdf

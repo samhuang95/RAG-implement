@@ -13,7 +13,3 @@ pypdf
 python-docx
 markdown
 openai
-gradio
-xhtml2pdf
-playwright
-

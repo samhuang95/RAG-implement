@@ -4,7 +4,10 @@ import json
 from notion_client import Client
 from notion2md.exporter.block import StringExporter
 import markdown
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except Exception:
+    pisa = None
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -49,31 +52,41 @@ def save_text_to_pdf(text, output_path):
     </html>
     """
 
-    # First try: use Playwright (Chromium) for reliable rendering
+    # Try Playwright only if available
     try:
         from playwright.sync_api import sync_playwright
-
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
-            # set content and wait until network idle to finish loading assets
             page.set_content(full_html, wait_until="networkidle")
-            # save PDF (print background to include styling)
             page.pdf(path=output_path, print_background=True, format="A4")
             browser.close()
         return True
     except Exception as e:
-        # Playwright might not be installed or could fail; fallback to xhtml2pdf
-        try:
-            with open(output_path, "wb") as pdf_file:
-                pisa_status = pisa.CreatePDF(full_html, dest=pdf_file)
-            if pisa_status.err:
-                print(f"Error creating PDF with xhtml2pdf: {pisa_status.err}")
+        # If Playwright isn't available, fall back to xhtml2pdf only when its dependency is present
+        if pisa is None:
+            # Neither Playwright nor xhtml2pdf available — save markdown as fallback
+            try:
+                # Save the markdown content to a .md file next to requested output
+                md_path = os.path.splitext(output_path)[0] + ".md"
+                with open(md_path, "w", encoding="utf-8") as f:
+                    f.write(sanitized)
+                print(f"Playwright/xhtml2pdf not installed. Saved markdown fallback: {md_path}")
                 return False
-            return True
-        except Exception as e2:
-            print(f"Both Playwright and xhtml2pdf failed: {e} | {e2}")
-            return False
+            except Exception as e3:
+                print(f"Failed to save markdown fallback: {e3}")
+                return False
+        else:
+            try:
+                with open(output_path, "wb") as pdf_file:
+                    pisa_status = pisa.CreatePDF(full_html, dest=pdf_file)
+                if pisa_status.err:
+                    print(f"Error creating PDF with xhtml2pdf: {pisa_status.err}")
+                    return False
+                return True
+            except Exception as e2:
+                print(f"xhtml2pdf failed: {e2}")
+                return False
 
 def fetch_notion_page_as_pdf(page_id, output_folder="uploaded_docs"):
     """

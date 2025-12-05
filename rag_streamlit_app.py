@@ -37,7 +37,7 @@ class E5Embeddings(HuggingFaceEmbeddings):
 
 
 @st.cache_resource
-def load_vectorstore(path="faiss_db"):
+def load_vectorstore(path="chroma_db"):
     emb = E5Embeddings()
     try:
         # FAISS deserialization uses pickle; allow only when loading trusted local DBs
@@ -124,7 +124,7 @@ def main():
     # Sidebar settings
     st.sidebar.header("Settings")
     k = st.sidebar.number_input("Number of results (k)", min_value=1, max_value=10, value=4)
-    db_path = st.sidebar.text_input("FAISS folder path", value="faiss_db")
+    db_path = st.sidebar.text_input("FAISS folder path", value="chroma_db")
     use_groq = st.sidebar.checkbox("Use Groq (aisuite) if available", value=True)
     # Prompt / model controls
     st.sidebar.markdown("---")

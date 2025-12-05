@@ -17,3 +17,12 @@ notion-client
 notion2md
 markdown
 xhtml2pdf
+
+streamlit
+sentence-transformers
+langchain
+faiss-cpu
+openai
+aisuite[all]
+python-dotenv
+

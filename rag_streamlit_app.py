@@ -107,6 +107,20 @@ def main():
     st.set_page_config(page_title="RAG Streamlit App", layout="wide")
     st.title("RAG — Streamlit QA")
 
+    # --- Debug / Deployment info: show whether faiss_db or chroma_db exist ---
+    st.sidebar.markdown("**Storage status**")
+    faiss_exists = os.path.exists("faiss_db")
+    chroma_exists = os.path.exists("chroma_db")
+    st.sidebar.write(f"faiss_db exists: {faiss_exists}")
+    st.sidebar.write(f"chroma_db exists: {chroma_exists}")
+    # If chroma exists, show a small listing to help debug in cloud
+    if chroma_exists:
+        try:
+            files = os.listdir("chroma_db")
+            st.sidebar.write(f"chroma_db contents (sample): {files[:10]}")
+        except Exception as e:
+            st.sidebar.write(f"Could not list chroma_db: {e}")
+
     # Sidebar settings
     st.sidebar.header("Settings")
     k = st.sidebar.number_input("Number of results (k)", min_value=1, max_value=10, value=4)

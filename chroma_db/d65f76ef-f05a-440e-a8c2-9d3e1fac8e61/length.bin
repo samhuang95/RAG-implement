@@ -1,0 +1,4 @@
+但實際上  rebase 變化邏輯如下 :
+可以發現其實  rebase 是幫我們將  new-branch 上所有的動作，重新執⾏過⼀次，所以會有新的  commit ID
+如果想要還原到合併之前，可以使⽤  「 reflog 」的⽅式達到效果，⽽我們⽤來觀察合併的變化，就會發現  rebase 就是上⾯的操作
+在 Git Bash 中輸入「 git reset HEAD@{4} --hard 」���

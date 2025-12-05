@@ -48,7 +48,15 @@ def load_vectorstore(path="faiss_db"):
         msg = str(e)
         if "faiss" in msg.lower() or isinstance(e, ModuleNotFoundError) or "Could not import faiss" in msg:
             try:
-                from langchain.vectorstores import Chroma
+                # Try langchain_community first (some deployments use this package)
+                try:
+                    from langchain_community.vectorstores import Chroma
+                except Exception:
+                    try:
+                        from langchain.vectorstores import Chroma
+                    except Exception as e_import:
+                        raise ImportError("Chroma vectorstore not found in langchain_community or langchain") from e_import
+
                 chroma_dir = "chroma_db"
                 if os.path.exists(chroma_dir):
                     store = Chroma(persist_directory=chroma_dir, embedding_function=emb)

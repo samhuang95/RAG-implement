@@ -44,8 +44,25 @@ def load_vectorstore(path="faiss_db"):
         store = FAISS.load_local(path, emb, allow_dangerous_deserialization=True)
         return store
     except Exception as e:
-        st.error(f"Failed to load FAISS vectorstore from {path}: {e}")
-        return None
+        # If faiss python package is missing or FAISS can't be imported, try Chromadb fallback
+        msg = str(e)
+        if "faiss" in msg.lower() or isinstance(e, ModuleNotFoundError) or "Could not import faiss" in msg:
+            try:
+                from langchain.vectorstores import Chroma
+                chroma_dir = "chroma_db"
+                if os.path.exists(chroma_dir):
+                    store = Chroma(persist_directory=chroma_dir, embedding_function=emb)
+                    st.warning("FAISS isn't available in this environment — using existing Chroma DB at 'chroma_db'.")
+                    return store
+                else:
+                    st.error("FAISS not available and no 'chroma_db' found. Please run the indexing script locally to create a vectorstore or deploy with FAISS support.")
+                    return None
+            except Exception as e2:
+                st.error(f"FAISS not available and Chroma fallback failed: {e2}")
+                return None
+        else:
+            st.error(f"Failed to load FAISS vectorstore from {path}: {e}")
+            return None
 
 
 def generate_from_openai(prompt: str, model_name: str = "gpt-3.5-turbo", temperature: float = 0.2):

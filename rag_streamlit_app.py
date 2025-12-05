@@ -134,6 +134,11 @@ def main():
     openai_model = st.sidebar.text_input("OpenAI model", value="gpt-3.5-turbo")
     groq_model_input = st.sidebar.text_input("Groq model", value=os.getenv("GROQ_MODEL", "groq:openai/gpt-oss-120b"))
 
+    # Demo preset questions for testers
+    preset_options = ["", "GIT reset 怎麼寫？", "Vue 的 props 是甚麼用途", "AWS EC2 是甚麼？"]
+    preset_choice = st.sidebar.selectbox("Demo Preset Questions", options=preset_options, index=0)
+    ask_preset = st.sidebar.button("Ask preset")
+
     with st.spinner("Loading vectorstore and embeddings..."):
         store = load_vectorstore(db_path)
 
@@ -163,6 +168,13 @@ def main():
         st.subheader("Chat")
         user_input = st.text_input("Your question", key="user_input")
         send = st.button("Send")
+
+        # If tester clicked the preset button, fill input and mark send
+        if ask_preset and preset_choice:
+            st.session_state["user_input"] = preset_choice
+            # update local variables so processing below runs immediately
+            user_input = preset_choice
+            send = True
 
         # display chat history
         for role, text in st.session_state.history:

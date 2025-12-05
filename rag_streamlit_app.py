@@ -13,7 +13,10 @@ import streamlit as st
 from sentence_transformers import SentenceTransformer
 from langchain_community.vectorstores import FAISS
 
-import aisuite as ai
+try:
+    import aisuite as ai
+except Exception:
+    ai = None
 import time
 
 
@@ -99,11 +102,11 @@ def main():
         st.error("Vectorstore not available. Run rag01_create_vector_db.py first.")
         return
 
-    # Setup aisuite client if GROQ key is present
+    # Setup aisuite client if GROQ key is present and aisuite is installed
     groq_key = os.getenv("GROQ_API_KEY")
     groq_client = None
     groq_model = os.getenv("GROQ_MODEL", "groq:openai/gpt-oss-120b")
-    if use_groq and groq_key:
+    if use_groq and groq_key and ai is not None:
         os.environ["GROQ_API_KEY"] = groq_key
         try:
             groq_client = ai.Client()
